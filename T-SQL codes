@@ -1,0 +1,92 @@
+1-
+SELECT listeFiyat,Durum=
+CASE
+	WHEN listeFiyat>100 THEN 'Çok Pahalı'
+	WHEN listeFiyat>80 THEN 'Pahalı'
+	WHEN listeFiyat>50 THEN 'Ucuz'
+	WHEN listeFiyat>10 THEN 'Çok Ucuz'
+	ELSE 'Böyle Bir Durum Yok'
+END
+FROM tblUrun
+
+2-
+DECLARE @counter int
+SET @counter =1
+WHILE (@counter<=15)
+	BEGIN
+	PRINT @counter
+	SET @counter = @counter+1
+END
+
+3-
+DECLARE @counter int
+SET @counter =0
+WHILE (@counter<15)
+	BEGIN
+	SET @counter = @counter+1
+	IF (@counter =11)
+	CONTINUE
+	PRINT @counter
+END
+
+4-
+DECLARE @enyuksekListeFiyat money
+SELECT @enyuksekListeFiyat= MAX(listeFiyat) FROM tblUrun
+SELECT @enyuksekListeFiyat AS 'En yüksek fiyat'
+
+5-
+SELECT markaKod, COUNT(*) AS 'Adet', Yildiz=
+CASE
+	WHEN COUNT(urunKod)>40 THEN '****'
+	WHEN COUNT(urunKod)>30 THEN '***'
+	WHEN COUNT(urunKod)>20 THEN '**'
+	WHEN COUNT(urunKod)>0 THEN '*'
+END
+FROM tblUrun
+GROUP BY markaKod
+
+6-
+CREATE VIEW BugunkuSiparisler
+AS
+SELECT K.isim, K.soyad, K.email, S.*
+FROM tblKullanici K INNER JOIN tblSiparis S
+	ON K.kullaniciKod=S.kullaniciKod
+WHERE	DAY(siparisTarih)=DAY(GETDATE()) AND
+		MONTH(siparisTarih)=MONTH(GETDATE()) AND
+		YEAR(siparisTarih)=YEAR(GETDATE())
+
+6. SORU SELECT'İ
+
+SELECT * FROM BugunkuSiparisler
+
+7-
+CREATE VIEW urunBul
+AS
+SELECT M.Marka, U.urunKod
+FROM tblUrun U INNER JOIN tblMarka M ON U.markaKod=M.markaKod
+
+7. SORU SELECT'İ
+
+SELECT * FROM urunBul WHERE urunKod=3391
+
+8-
+CREATE VIEW urunBul2
+AS
+SELECT M.Marka, U.urunKod, S.siparisTarih, S.faturaKod
+FROM tblUrun U	INNER JOIN tblMarka M ON U.markaKod=M.markaKod
+				INNER JOIN tblSiparisDetay SD ON U.urunKod=SD.urunKod
+				INNER JOIN tblSiparis S ON S.faturaKod=SD.faturaKod
+
+8. SORU SELECT'İ
+
+SELECT * FROM urunBul2 WHERE faturaKod=6
+
+9.
+CREATE VIEW kim
+AS
+SELECT K.isim, K.soyad, S.faturaKod
+FROM tblKullanici K INNER JOIN tblSiparis S ON S.kullaniciKod=K.kullaniciKod
+
+9. SORU SELECT'İ
+
+SELECT * FROM kim WHERE faturaKod=6
