@@ -1,0 +1,115 @@
+1-
+CREATE FUNCTION topla(@sayi1 int, @sayi2 int)
+RETURNS int AS
+BEGIN 
+	DECLARE @toplam int
+	SELECT @toplam=@sayi1+@sayi2
+	RETURN @toplam
+END
+
+SELECT dbo.topla(9,27) AS 'Toplam'
+
+2-
+CREATE FUNCTION ortalama(@sayi1 int, @sayi2 int)
+RETURNS int AS
+BEGIN 
+	DECLARE @ortalama int
+	SELECT @ortalama=(@sayi1+@sayi2)/2
+	RETURN @ortalama
+END
+
+SELECT dbo.ortalama(9,27) AS 'Ortalama'
+
+3-
+CREATE FUNCTION daireAlani(@yaricap int)
+RETURNS decimal(18,2)
+AS
+BEGIN
+	DECLARE @alan decimal(18,2),@pi decimal(18,2)
+	SET @pi=3.14
+	SELECT @alan=@pi*@yaricap*@yaricap
+	RETURN @alan
+END
+
+SELECT dbo.daireAlani(4) AS 'Dairenin Alani'
+
+ÇALIŞMA 2-
+1-
+CREATE FUNCTION urunKodBul(@urunKod int)
+RETURNS TABLE
+AS 
+RETURN
+SELECT *
+FROM tblUrun 
+WHERE urunKod=@urunKod
+
+SELECT * FROM dbo.urunKodBul(2800)
+
+2-
+CREATE FUNCTION enBuyukListeFiyat()
+RETURNS TABLE
+AS 
+RETURN
+SELECT *
+FROM tblUrun 
+WHERE listeFiyat=(SELECT MAX(listeFiyat) FROM tblUrun)
+
+SELECT * FROM dbo.enBuyukListeFiyat()
+
+3-
+CREATE FUNCTION markaBul(@urunKod int)
+RETURNS TABLE
+AS 
+RETURN
+SELECT M.Marka
+FROM tblMarka M JOIN tblUrun U ON M.markaKod=U.markaKod
+WHERE U.urunKod=@urunKod
+
+SELECT * FROM dbo.markaBul(2800)
+
+4-
+CREATE FUNCTION dovizBul(@urunKod int)
+RETURNS TABLE
+AS 
+RETURN
+SELECT M.Marka, D.dovizAd
+FROM tblMarka M JOIN tblUrun U ON M.markaKod=U.markaKod
+JOIN tblDoviz D ON D.dovizKod=U.dovizKod
+WHERE U.urunKod=@urunKod
+
+SELECT * FROM dbo.dovizBul(2800)
+
+5-
+CREATE FUNCTION meslek(@faturaKod int)
+RETURNS TABLE
+AS 
+RETURN
+SELECT M.meslek
+FROM tblSiparis S JOIN tblKullanici K ON S.kullaniciKod=K.kullaniciKod
+JOIN tblMeslek M ON M.meslekKod=K.meslekKod 
+WHERE S.faturaKod=@faturaKod
+
+SELECT * FROM dbo.meslek(6)
+
+6-
+CREATE FUNCTION kac_Adet()
+RETURNS TABLE
+AS
+RETURN
+SELECT M.Marka,COUNT(M.Marka) AS "Adet"
+FROM tblUrun U JOIN tblMarka M ON M.markaKod=U.markaKod
+JOIN tblSiparisDetay SD ON SD.urunKod=U.urunKod
+GROUP BY M.Marka
+
+SELECT * FROM kac_Adet()
+
+7-
+CREATE FUNCTION ucten_fazla()
+RETURNS TABLE
+AS
+RETURN
+SELECT S.faturaKod, SD.adet
+FROM tblSiparis S JOIN tblSiparisDetay SD ON SD.faturaKod=S.faturaKod
+WHERE SD.adet>3
+
+SELECT * FROM ucten_fazla()
