@@ -1,0 +1,20 @@
+ALTER TRIGGER [dbo].[orders_delete]
+ON [dbo].[orders]
+INSTEAD OF DELETE
+AS
+BEGIN
+-- SET NOCOUNT ON added to prevent extra result sets from
+-- interfering with SELECT statements.
+SET NOCOUNT ON;
+DECLARE @SayOrder int
+SELECT @SayOrder = count(*) FROM orders o inner join deleted i on i.order_id = o.order_id
+IF(@SayOrder>0)
+BEGIN
+DELETE FROM orders WHERE order_id=(SELECT order_id FROM deleted)
+UPDATE customer SET total_order_quantity-=(SELECT amount FROM deleted) WHERE cust_id=(SELECT cust_id FROM deleted)
+END
+ELSE
+BEGIN
+RAISERROR('Sipariş Bulunamadı',16,1)
+END
+END
