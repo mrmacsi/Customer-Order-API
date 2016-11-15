@@ -1,0 +1,30 @@
+Customer Part Control Trigger
+
+ALTER TRIGGER [dbo].[customer_part_control]
+ON [dbo].[orders]
+INSTEAD OF INSERT
+AS
+BEGIN
+-- SET NOCOUNT ON added to prevent extra result sets from
+-- interfering with SELECT statements.
+SET NOCOUNT ON;
+DECLARE @SayPart int,@SayCust int
+SELECT @SayPart = count(*) FROM part p inner join inserted i on i.part_id = p.part_id
+IF(@SayPart>0)
+BEGIN
+SELECT @SayCust = count(*) FROM customer c inner join inserted i on i.cust_id = c.cust_id
+IF(@SayCust>0)
+BEGIN
+INSERT INTO orders SELECT order_date,cust_id,part_id,quantity,price,amount FROM inserted
+UPDATE customer SET total_order_quantity+=(SELECT amount FROM inserted) WHERE cust_id=(SELECT cust_id FROM inserted)
+END
+ELSE
+BEGIN
+RAISERROR('Müşteri Bulunamadı',16,1)
+END
+END
+ELSE
+BEGIN
+RAISERROR('Part Bulunamadı',16,1)
+END
+END
