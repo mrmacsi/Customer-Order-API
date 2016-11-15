@@ -1,0 +1,18 @@
+ALTER PROC [dbo].[spPART_Insert](
+@part_code nvarchar(20),
+@part_name nvarchar(100),
+@purchase_price decimal(10, 2),
+@sales_price decimal(10, 2),
+@new_identity int output)
+AS
+BEGIN
+BEGIN TRANSACTION -- tran başlangıç
+BEGIN TRY -- try başlangıç
+INSERT INTO part Output inserted.part_id VALUES(@part_code,@part_name,@purchase_price,@sales_price)
+IF @@ERROR=0 -- Hata yoksa
+COMMIT TRANSACTION
+END TRY -- try bitiş
+BEGIN CATCH -- CATCH başlangıç
+ROLLBACK TRANSACTION -- ROLLBACK
+END CATCH -- CATCH bitiş
+END
