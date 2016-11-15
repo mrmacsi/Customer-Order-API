@@ -1,0 +1,23 @@
+ALTER TRIGGER [dbo].[stop_part_delete]
+ON [dbo].[part]
+INSTEAD OF DELETE
+AS
+BEGIN
+-- SET NOCOUNT ON added to prevent extra result sets from
+-- interfering with SELECT statements.
+SET NOCOUNT ON;
+DECLARE @SayOrder int,@SayPart int
+SELECT @SayOrder = count(*) FROM orders o inner join deleted d on d.part_id = o.part_id
+IF(@SayOrder>0)
+RAISERROR('Bu Partın Siparişi Bulunuyor!',16,1)
+ELSE
+BEGIN
+SELECT @SayPart = count(*) FROM part p inner join deleted d on d.part_id = p.part_id
+IF(@SayPart>0)
+BEGIN
+DELETE FROM part WHERE part_id=(SELECT part_id FROM deleted)
+END
+ELSE
+RAISERROR('Part Bulunamadı!',16,1)
+END
+END
