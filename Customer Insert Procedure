@@ -1,0 +1,17 @@
+ALTER PROC [dbo].[spCUSTOMER_Insert](
+@cust_code nvarchar(20),
+@cust_name nvarchar(100),
+@total_order_quantity decimal(10, 2),
+@new_identity int output)
+AS
+BEGIN
+BEGIN TRANSACTION -- tran başlangıç
+BEGIN TRY -- try başlangıç
+INSERT INTO customer Output inserted.cust_id VALUES(@cust_code,@cust_name,@total_order_quantity)
+IF @@ERROR=0 -- Hata yoksa
+COMMIT TRANSACTION
+END TRY -- try bitiş
+BEGIN CATCH -- CATCH başlangıç
+ROLLBACK TRANSACTION -- ROLLBACK
+END CATCH -- CATCH bitiş
+END
