@@ -1,0 +1,25 @@
+Customer Delete Trigger
+
+ALTER TRIGGER [dbo].[stop_cust_delete]
+ON [dbo].[customer]
+INSTEAD OF DELETE
+AS
+BEGIN
+-- SET NOCOUNT ON added to prevent extra result sets from
+-- interfering with SELECT statements.
+SET NOCOUNT ON;
+DECLARE @SayOrder int,@SayCustomer int
+SELECT @SayOrder = count(*) FROM orders o inner join deleted d on d.cust_id = o.cust_id
+IF(@SayOrder>0)
+RAISERROR('Bu Müşterinin Siparişi Bulunuyor!',16,1)
+ELSE
+BEGIN
+SELECT @SayCustomer = count(*) FROM customer c inner join deleted d on d.cust_id = c.cust_id
+IF(@SayCustomer>0)
+BEGIN
+DELETE FROM customer WHERE cust_id=(SELECT cust_id FROM deleted)
+END
+ELSE
+RAISERROR('Müşteri Bulunamadı!',16,1)
+END
+END
